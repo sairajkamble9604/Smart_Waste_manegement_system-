@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Smart Waste Management System — Metropolitan Cities</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body style="margin:0;">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div style="font-size:3.5rem;margin-bottom:16px;">♻️</div>
+    <h1>Smart Waste Management System</h1>
+    <p>AI-powered IoT waste monitoring for Metropolitan Cities</p>
+    <div style="display:flex;gap:12px;justify-content:center;margin:20px 0 0;flex-wrap:wrap;">
+      <span style="background:rgba(255,255,255,0.15);color:#fff;padding:6px 16px;border-radius:20px;font-size:0.82rem;">🏙️ Pune Metropolitan Region</span>
+      <span style="background:rgba(255,255,255,0.15);color:#fff;padding:6px 16px;border-radius:20px;font-size:0.82rem;">📡 12 Smart IoT Bins</span>
+      <span style="background:rgba(255,255,255,0.15);color:#fff;padding:6px 16px;border-radius:20px;font-size:0.82rem;">🤖 AI Route Optimization</span>
+      <span style="background:rgba(255,255,255,0.15);color:#fff;padding:6px 16px;border-radius:20px;font-size:0.82rem;">⚡ Real-Time Alerts</span>
+    </div>
+    <div class="hero-btns">
+      <a href="/dashboard" class="btn btn-primary">📊 Open Dashboard</a>
+      <a href="/map" class="btn btn-outline">🗺️ Live Map</a>
+      <a href="/bins" class="btn btn-outline">🗑️ View All Bins</a>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <h2>🌿 Platform Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📡</div>
+        <h3>IoT Real-Time Monitoring</h3>
+        <p>Ultrasonic sensors in each bin report fill levels every 15 minutes to the central dashboard via MQTT protocol.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Route Optimization</h3>
+        <p>Greedy nearest-neighbour algorithm plans optimal garbage truck routes based on bin criticality and location.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Smart Alerts</h3>
+        <p>Instant notifications when bins exceed 85% capacity — preventing overflow and maintaining city hygiene.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Analytics Dashboard</h3>
+        <p>Zone-wise fill analysis, weekly collection trends, and waste type breakdowns for smarter city planning.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <h3>Interactive Map</h3>
+        <p>Live Leaflet.js map showing all bin locations, fill levels, and optimized truck collection routes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <h3>REST API</h3>
+        <p>Full JSON API for IoT device integration, mobile apps, and third-party municipal system connectivity.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SDG Section -->
+  <div style="background:#f0f4f8;padding:48px 40px;text-align:center;">
+    <h2 style="font-size:1.8rem;margin-bottom:12px;">🌍 Aligned with UN SDG Goals</h2>
+    <p style="color:#636e72;margin-bottom:28px;">This project contributes to sustainable urban development</p>
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+      <div style="background:#fff;padding:20px 28px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.06);min-width:160px;">
+        <div style="font-size:2rem;">🏙️</div>
+        <div style="font-weight:700;margin-top:8px;font-size:0.9rem;">SDG 11</div>
+        <div style="color:#636e72;font-size:0.8rem;">Sustainable Cities</div>
+      </div>
+      <div style="background:#fff;padding:20px 28px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.06);min-width:160px;">
+        <div style="font-size:2rem;">♻️</div>
+        <div style="font-weight:700;margin-top:8px;font-size:0.9rem;">SDG 12</div>
+        <div style="color:#636e72;font-size:0.8rem;">Responsible Consumption</div>
+      </div>
+      <div style="background:#fff;padding:20px 28px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.06);min-width:160px;">
+        <div style="font-size:2rem;">🌊</div>
+        <div style="font-weight:700;margin-top:8px;font-size:0.9rem;">SDG 14</div>
+        <div style="color:#636e72;font-size:0.8rem;">Life Below Water</div>
+      </div>
+      <div style="background:#fff;padding:20px 28px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.06);min-width:160px;">
+        <div style="font-size:2rem;">🌿</div>
+        <div style="font-weight:700;margin-top:8px;font-size:0.9rem;">SDG 15</div>
+        <div style="color:#636e72;font-size:0.8rem;">Life on Land</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Preview -->
+  <div style="background:#1e272e;padding:48px 40px;text-align:center;">
+    <h2 style="color:#fff;font-size:1.8rem;margin-bottom:8px;">🔗 REST API</h2>
+    <p style="color:rgba(255,255,255,0.6);margin-bottom:28px;">Integrate with IoT devices and mobile apps</p>
+    <div style="background:#151f27;border-radius:12px;padding:24px;max-width:600px;margin:0 auto;text-align:left;">
+      <div style="color:#00b894;font-size:0.82rem;font-family:monospace;">
+        GET  /api/bins          → All bin status<br>
+        GET  /api/bins/BIN001   → Single bin details<br>
+        POST /api/bins/BIN001/update → IoT push update<br>
+        GET  /api/route         → Optimized truck route<br>
+        GET  /api/stats         → City-level stats<br>
+      </div>
+    </div>
+    <a href="/dashboard" class="btn btn-primary" style="margin-top:28px;">Get Started →</a>
+  </div>
+
+  <footer style="background:#111;color:rgba(255,255,255,0.5);text-align:center;padding:20px;font-size:0.82rem;">
+    © 2026 Smart Waste Management System | SmartInternz Final Project | Pune Metropolitan Region
+  </footer>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Dashboard — Smart Waste Management</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  {% set active = 'dashboard' %}
+  {% include '_sidebar.html' %}
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1>📊 Live Dashboard</h1>
+        <div class="meta">Pune Metropolitan Waste Management · {{ bins|length }} Zones Active</div>
+      </div>
+      <div class="topbar-right">
+        <div class="live-badge"><div class="pulse"></div> Live Monitoring</div>
+        <div style="font-size:0.82rem;color:#636e72;" id="clock"></div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Stats Row -->
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-icon">🗑️</div>
+          <div class="stat-info"><h3>{{ total_bins }}</h3><p>Total Smart Bins</p></div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">🚨</div>
+          <div class="stat-info"><h3>{{ critical_count }}</h3><p>Critical (≥85%)</p></div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-info"><h3>{{ warning_count }}</h3><p>Warning (60–84%)</p></div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">📈</div>
+          <div class="stat-info"><h3>{{ avg_fill }}%</h3><p>Avg City Fill Level</p></div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3>📦 Weekly Collection (kg)</h3>
+            <span class="badge" style="background:#e8fff6;color:#00b894;">Last 7 Days</span>
+          </div>
+          <div class="card-body">
+            <canvas id="weeklyChart" height="200"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>🥧 Bin Status Distribution</h3>
+          </div>
+          <div class="card-body">
+            <canvas id="statusChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fill Levels + Alerts -->
+      <div class="grid-2">
+        <!-- Fill Levels -->
+        <div class="card">
+          <div class="card-header">
+            <h3>🗑️ Live Fill Levels</h3>
+            <a href="/bins" style="font-size:0.8rem;color:#00b894;text-decoration:none;">View All →</a>
+          </div>
+          <div class="card-body">
+            {% for b in bins[:8] %}
+            <div class="fill-bar-wrap">
+              <div class="fill-bar-label">
+                <span>{{ b.name }}</span>
+                <span style="font-weight:700;color:{% if b.status=='critical' %}#d63031{% elif b.status=='warning' %}#e17055{% else %}#00b894{% endif %}">{{ b.fill }}%</span>
+              </div>
+              <div class="fill-bar">
+                <div class="fill-bar-inner {{ b.status }}" style="width:{{ b.fill }}%"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="card">
+          <div class="card-header">
+            <h3>🔔 Live Alerts</h3>
+            {% if alerts %}
+            <span class="badge" style="background:#ffe8e8;color:#d63031;">{{ alerts|length }} Active</span>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            {% if alerts %}
+              {% for a in alerts %}
+              <div class="alert-item">
+                <div class="alert-icon">{{ a.icon }}</div>
+                <div>
+                  <div class="alert-msg">{{ a.msg }}</div>
+                  <div class="alert-time">{{ a.time }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div style="text-align:center;padding:40px;color:#636e72;">✅ No critical alerts right now</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone Overview -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header"><h3>🏙️ Zone-wise Average Fill Level</h3></div>
+        <div class="card-body">
+          <div class="zone-grid">
+            {% for zone, avg in zone_avg.items() %}
+            <div class="zone-pill">
+              <div class="zone-name">{{ zone }}</div>
+              <div class="zone-val" style="color:{% if avg>=85 %}#d63031{% elif avg>=60 %}#e17055{% else %}#00b894{% endif %}">{{ avg }}%</div>
+              <div style="font-size:0.75rem;color:#636e72;margin-top:4px;">
+                {% if avg>=85 %}Critical{% elif avg>=60 %}Moderate{% else %}Good{% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Critical Bins Table -->
+      {% if critical %}
+      <div class="card">
+        <div class="card-header">
+          <h3>🚨 Critical Bins — Immediate Collection Required</h3>
+          <a href="/map" class="btn btn-danger btn-sm">View Route 🚛</a>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="data-table">
+            <thead><tr><th>Bin ID</th><th>Location</th><th>Zone</th><th>Type</th><th>Fill Level</th><th>Predicted Full</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for b in critical %}
+              <tr>
+                <td><strong>{{ b.id }}</strong></td>
+                <td>{{ b.name }}</td>
+                <td>{{ b.zone }}</td>
+                <td>{{ b.type }}</td>
+                <td>
+                  <div class="fill-mini">
+                    <div class="bar"><div class="bar-inner" style="width:{{ b.fill }}%;background:#d63031;"></div></div>
+                    <strong style="color:#d63031;">{{ b.fill }}%</strong>
+                  </div>
+                </td>
+                <td style="font-size:0.8rem;color:#636e72;">{{ b.predicted_full }}</td>
+                <td><span class="status-badge status-critical">Critical</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <script>
+    // Clock
+    function updateClock() {
+      document.getElementById('clock').textContent = new Date().toLocaleString('en-IN', {dateStyle:'medium',timeStyle:'short'});
+    }
+    updateClock(); setInterval(updateClock, 1000);
+
+    // Weekly Chart
+    const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+    new Chart(weeklyCtx, {
+      type: 'bar',
+      data: {
+        labels: {{ weekly.labels | tojson }},
+        datasets: [
+          { label: 'Collected (kg)', data: {{ weekly.collected | tojson }}, backgroundColor: '#00b894', borderRadius: 6 },
+          { label: 'Recycled (kg)',  data: {{ weekly.recycled  | tojson }}, backgroundColor: '#0984e3', borderRadius: 6 }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Status Pie
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['OK', 'Warning', 'Critical'],
+        datasets: [{ data: [{{ ok_count }}, {{ warning_count }}, {{ critical_count }}], backgroundColor: ['#00b894','#fdcb6e','#d63031'], borderWidth: 0 }]
+      },
+      options: { responsive: true, cutout: '65%', plugins: { legend: { position: 'bottom' } } }
+    });
+  </script>
+</body>
+</html>

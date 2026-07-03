@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Bin Monitor — Smart Waste Management</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+  {% set active = 'bins' %}
+  {% include '_sidebar.html' %}
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1>🗑️ Bin Monitor</h1>
+        <div class="meta">Real-time fill level for all {{ bins|length }} smart bins</div>
+      </div>
+      <div class="topbar-right">
+        <div class="live-badge"><div class="pulse"></div> IoT Sync Active</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Filters -->
+      <form class="filter-bar" method="GET">
+        <select name="zone" onchange="this.form.submit()">
+          <option value="All" {% if zone_filter=='All' %}selected{% endif %}>All Zones</option>
+          {% for z in zones %}<option value="{{ z }}" {% if zone_filter==z %}selected{% endif %}>{{ z }}</option>{% endfor %}
+        </select>
+        <select name="type" onchange="this.form.submit()">
+          <option value="All" {% if type_filter=='All' %}selected{% endif %}>All Types</option>
+          {% for t in types %}<option value="{{ t }}" {% if type_filter==t %}selected{% endif %}>{{ t }}</option>{% endfor %}
+        </select>
+        <span style="font-size:0.85rem;color:#636e72;align-self:center;">Showing {{ bins|length }} bins</span>
+      </form>
+
+      <!-- Bin Cards Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;">
+        {% for b in bins %}
+        <div class="card" style="border-top: 4px solid {% if b.status=='critical' %}#d63031{% elif b.status=='warning' %}#fdcb6e{% else %}#00b894{% endif %};">
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+              <div>
+                <div style="font-weight:700;font-size:0.95rem;">{{ b.name }}</div>
+                <div style="color:#636e72;font-size:0.78rem;">{{ b.id }} · {{ b.zone }}</div>
+              </div>
+              <span class="status-badge status-{{ b.status }}">
+                {% if b.status=='critical' %}🔴{% elif b.status=='warning' %}🟡{% else %}🟢{% endif %}
+                {{ b.status|capitalize }}
+              </span>
+            </div>
+
+            <!-- Fill Bar -->
+            <div style="margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.82rem;">
+                <span>Fill Level</span>
+                <strong style="color:{% if b.status=='critical' %}#d63031{% elif b.status=='warning' %}#e17055{% else %}#00b894{% endif %}">{{ b.fill }}%</strong>
+              </div>
+              <div class="fill-bar">
+                <div class="fill-bar-inner {{ b.status }}" style="width:{{ b.fill }}%"></div>
+              </div>
+            </div>
+
+            <!-- Details -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.8rem;">
+              <div style="background:#f8f9fa;border-radius:8px;padding:8px;">
+                <div style="color:#636e72;">Type</div>
+                <div style="font-weight:600;">
+                  {% if b.type=='Organic' %}🟤{% elif b.type=='Recyclable' %}🔵{% elif b.type=='Hazardous' %}☢️{% else %}⚫{% endif %}
+                  {{ b.type }}
+                </div>
+              </div>
+              <div style="background:#f8f9fa;border-radius:8px;padding:8px;">
+                <div style="color:#636e72;">Capacity</div>
+                <div style="font-weight:600;">{{ b.capacity }} L</div>
+              </div>
+              <div style="background:#f8f9fa;border-radius:8px;padding:8px;grid-column:1/-1;">
+                <div style="color:#636e72;">Predicted Full</div>
+                <div style="font-weight:600;font-size:0.78rem;">🕐 {{ b.predicted_full }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

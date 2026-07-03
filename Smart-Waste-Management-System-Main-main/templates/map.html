@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Live Map — Smart Waste Management</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  {% set active = 'map' %}
+  {% include '_sidebar.html' %}
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1>🗺️ Live Bin Map & Route Optimizer</h1>
+        <div class="meta">Real-time bin locations · Optimized collection route</div>
+      </div>
+      <div class="topbar-right">
+        <div class="live-badge"><div class="pulse"></div> GPS Active</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Stats Strip -->
+      <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+        <div style="background:#fff;border-radius:10px;padding:14px 20px;box-shadow:0 2px 10px rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.5rem;">🚨</span>
+          <div><div style="font-size:1.5rem;font-weight:800;color:#d63031;">{{ critical_count }}</div><div style="font-size:0.78rem;color:#636e72;">Critical Bins</div></div>
+        </div>
+        <div style="background:#fff;border-radius:10px;padding:14px 20px;box-shadow:0 2px 10px rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.5rem;">🚛</span>
+          <div><div style="font-size:1.5rem;font-weight:800;color:#0984e3;">{{ route|length }}</div><div style="font-size:0.78rem;color:#636e72;">Route Stops</div></div>
+        </div>
+        <div style="background:#fff;border-radius:10px;padding:14px 20px;box-shadow:0 2px 10px rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.5rem;">📍</span>
+          <div><div style="font-size:1.5rem;font-weight:800;color:#00b894;">{{ total_dist }} km</div><div style="font-size:0.78rem;color:#636e72;">Route Distance</div></div>
+        </div>
+        <div style="background:#fff;border-radius:10px;padding:14px 20px;box-shadow:0 2px 10px rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.5rem;">🕐</span>
+          <div><div style="font-size:1.5rem;font-weight:800;color:#6c5ce7;">~{{ (total_dist / 30 * 60)|int }} min</div><div style="font-size:0.78rem;color:#636e72;">Est. Travel Time</div></div>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <h3>📍 Interactive City Map</h3>
+          <div style="display:flex;gap:10px;font-size:0.78rem;align-items:center;">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:#d63031;border-radius:50%;display:inline-block;"></span> Critical</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:#fdcb6e;border-radius:50%;display:inline-block;"></span> Warning</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:#00b894;border-radius:50%;display:inline-block;"></span> OK</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:#0984e3;border-radius:50%;display:inline-block;"></span> Route</span>
+          </div>
+        </div>
+        <div id="map"></div>
+      </div>
+
+      <!-- Route Table -->
+      {% if route %}
+      <div class="card">
+        <div class="card-header"><h3>🚛 Optimized Collection Route ({{ route|length }} stops)</h3></div>
+        <div class="card-body" style="padding:0;">
+          <table class="data-table">
+            <thead><tr><th>Stop #</th><th>Bin ID</th><th>Location</th><th>Zone</th><th>Fill Level</th><th>Type</th></tr></thead>
+            <tbody>
+              <tr style="background:#e8f4ff;">
+                <td><strong>Start</strong></td>
+                <td colspan="4"><strong>🏭 Municipal Depot (Start & End Point)</strong></td>
+                <td></td>
+              </tr>
+              {% for b in route %}
+              <tr>
+                <td><strong>{{ loop.index }}</strong></td>
+                <td>{{ b.id }}</td>
+                <td>{{ b.name }}</td>
+                <td>{{ b.zone }}</td>
+                <td><strong style="color:#d63031;">{{ b.fill }}%</strong></td>
+                <td>{{ b.type }}</td>
+              </tr>
+              {% endfor %}
+              <tr style="background:#e8f4ff;">
+                <td><strong>Return</strong></td>
+                <td colspan="4"><strong>🏭 Municipal Depot (Return)</strong></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+      <div class="card">
+        <div class="card-body" style="text-align:center;padding:40px;color:#636e72;">
+          ✅ No critical bins right now. All bins are operating within safe fill levels.
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    const bins   = {{ bins_json | safe }};
+    const route  = {{ route_json | safe }};
+    const depot  = {{ depot_json | safe }};
+
+    const map = L.map('map').setView([18.5300, 73.8476], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    const colorMap = { ok: '#00b894', warning: '#fdcb6e', critical: '#d63031' };
+
+    function circleIcon(color, size=14) {
+      return L.divIcon({
+        className: '',
+        html: `<div style="width:${size}px;height:${size}px;background:${color};border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
+        iconSize: [size, size], iconAnchor: [size/2, size/2]
+      });
+    }
+
+    // Depot marker
+    L.marker([depot.lat, depot.lng], {
+      icon: L.divIcon({ className:'', html:'<div style="font-size:1.8rem;">🏭</div>', iconAnchor:[14,14] })
+    }).addTo(map).bindPopup('<strong>Municipal Depot</strong><br>Collection Start/End Point');
+
+    // Bin markers
+    bins.forEach(b => {
+      const color = colorMap[b.status] || '#636e72';
+      L.marker([b.lat, b.lng], { icon: circleIcon(color, 16) })
+        .addTo(map)
+        .bindPopup(`
+          <div style="min-width:180px;">
+            <strong style="font-size:1rem;">${b.name}</strong><br>
+            <span style="color:#636e72;font-size:0.82rem;">${b.id} · ${b.zone}</span><hr style="margin:6px 0;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span>Fill Level</span>
+              <strong style="color:${color}">${b.fill}%</strong>
+            </div>
+            <div style="background:#eee;height:8px;border-radius:4px;overflow:hidden;margin-bottom:8px;">
+              <div style="width:${b.fill}%;height:100%;background:${color};border-radius:4px;"></div>
+            </div>
+            <div>Type: <strong>${b.type}</strong></div>
+            <div style="color:#636e72;font-size:0.8rem;">Predicted Full: ${b.predicted_full}</div>
+          </div>
+        `);
+    });
+
+    // Optimized route line
+    if (route.length > 0) {
+      const routeCoords = [
+        [depot.lat, depot.lng],
+        ...route.map(b => [b.lat, b.lng]),
+        [depot.lat, depot.lng]
+      ];
+      L.polyline(routeCoords, { color: '#0984e3', weight: 3, dashArray: '8,6', opacity: 0.85 }).addTo(map);
+      route.forEach((b, i) => {
+        L.marker([b.lat, b.lng], {
+          icon: L.divIcon({ className:'', html:`<div style="background:#0984e3;color:#fff;font-weight:700;font-size:0.78rem;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);">${i+1}</div>`, iconSize:[22,22], iconAnchor:[11,11] })
+        }).addTo(map);
+      });
+    }
+  </script>
+</body>
+</html>

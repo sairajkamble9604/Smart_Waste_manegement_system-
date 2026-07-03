@@ -1,0 +1,24 @@
+    <div class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">♻️</div>
+        <h2>Smart Waste Management</h2>
+        <p>Metropolitan Cities</p>
+      </div>
+      <nav class="sidebar-menu">
+        <div class="section-label">Main</div>
+        <a href="/" class="{{ 'active' if active=='home' }}"><span class="icon">🏠</span> Home</a>
+        <a href="/dashboard" class="{{ 'active' if active=='dashboard' }}"><span class="icon">📊</span> Dashboard</a>
+        <a href="/map" class="{{ 'active' if active=='map' }}"><span class="icon">🗺️</span> Live Map</a>
+        <div class="section-label">Management</div>
+        <a href="/bins" class="{{ 'active' if active=='bins' }}"><span class="icon">🗑️</span> Bin Monitor</a>
+        <a href="/reports" class="{{ 'active' if active=='reports' }}"><span class="icon">📈</span> Reports</a>
+        <div class="section-label">Developer</div>
+        <a href="/api/bins" target="_blank"><span class="icon">🔗</span> API — Bins</a>
+        <a href="/api/stats" target="_blank"><span class="icon">📡</span> API — Stats</a>
+        <a href="/api/route" target="_blank"><span class="icon">🚛</span> API — Route</a>
+      </nav>
+      <div class="sidebar-footer">
+        Pune Metropolitan Region<br>
+        © 2026 SWMS Platform
+      </div>
+    </div>

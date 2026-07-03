@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Reports — Smart Waste Management</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  {% set active = 'reports' %}
+  {% include '_sidebar.html' %}
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1>📈 Analytics & Reports</h1>
+        <div class="meta">Weekly trends · Waste composition · Performance metrics</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>📦 Weekly Collection vs Recycled (kg)</h3></div>
+          <div class="card-body"><canvas id="weeklyBar" height="220"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>🧩 Bin Type Distribution</h3></div>
+          <div class="card-body"><canvas id="typePie" height="220"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>📉 Fill Level Trend (All Bins)</h3></div>
+          <div class="card-body"><canvas id="fillLine" height="220"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>🎯 KPIs — This Week</h3></div>
+          <div class="card-body">
+            <div style="display:grid;gap:16px;">
+              {% set total_c = weekly.collected | sum %}
+              {% set total_r = weekly.recycled  | sum %}
+              <div style="display:flex;justify-content:space-between;padding:14px;background:#e8fff6;border-radius:10px;">
+                <div><div style="font-size:0.8rem;color:#636e72;">Total Collected</div><div style="font-size:1.4rem;font-weight:800;color:#00b894;">{{ total_c }} kg</div></div>
+                <span style="font-size:2rem;">📦</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:14px;background:#e8f4ff;border-radius:10px;">
+                <div><div style="font-size:0.8rem;color:#636e72;">Total Recycled</div><div style="font-size:1.4rem;font-weight:800;color:#0984e3;">{{ total_r }} kg</div></div>
+                <span style="font-size:2rem;">♻️</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:14px;background:#fff9e6;border-radius:10px;">
+                <div><div style="font-size:0.8rem;color:#636e72;">Recycling Rate</div><div style="font-size:1.4rem;font-weight:800;color:#e17055;">{{ ((total_r / total_c) * 100) | round(1) }}%</div></div>
+                <span style="font-size:2rem;">📊</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:14px;background:#f3e8ff;border-radius:10px;">
+                <div><div style="font-size:0.8rem;color:#636e72;">Active Bins</div><div style="font-size:1.4rem;font-weight:800;color:#6c5ce7;">{{ bins|length }}</div></div>
+                <span style="font-size:2rem;">🗑️</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Bins Table -->
+      <div class="card">
+        <div class="card-header"><h3>📋 Complete Bin Status Report</h3></div>
+        <div class="card-body" style="padding:0;">
+          <table class="data-table">
+            <thead><tr><th>Bin ID</th><th>Location</th><th>Zone</th><th>Type</th><th>Fill %</th><th>Status</th><th>Capacity (L)</th></tr></thead>
+            <tbody>
+              {% for b in bins %}
+              <tr>
+                <td><strong>{{ b.id }}</strong></td>
+                <td>{{ b.name }}</td>
+                <td>{{ b.zone }}</td>
+                <td>{{ b.type }}</td>
+                <td>
+                  <div class="fill-mini">
+                    <div class="bar"><div class="bar-inner" style="width:{{ b.fill }}%;background:{% if b.status=='critical' %}#d63031{% elif b.status=='warning' %}#fdcb6e{% else %}#00b894{% endif %};"></div></div>
+                    {{ b.fill }}%
+                  </div>
+                </td>
+                <td><span class="status-badge status-{{ b.status }}">{{ b.status|capitalize }}</span></td>
+                <td>{{ b.capacity }} L</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Weekly Bar
+    new Chart(document.getElementById('weeklyBar'), {
+      type: 'bar',
+      data: {
+        labels: {{ weekly.labels|tojson }},
+        datasets: [
+          { label: 'Collected (kg)', data: {{ weekly.collected|tojson }}, backgroundColor: '#00b894', borderRadius: 6 },
+          { label: 'Recycled (kg)',  data: {{ weekly.recycled|tojson }},  backgroundColor: '#0984e3', borderRadius: 6 }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    // Type Pie
+    const typeData = {{ type_totals|tojson }};
+    new Chart(document.getElementById('typePie'), {
+      type: 'pie',
+      data: {
+        labels: Object.keys(typeData),
+        datasets: [{ data: Object.values(typeData), backgroundColor: ['#00b894','#0984e3','#fdcb6e','#d63031','#6c5ce7'], borderWidth: 0 }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    // Fill Line (simulated 7-day fill trend)
+    const days = {{ weekly.labels|tojson }};
+    new Chart(document.getElementById('fillLine'), {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [
+          { label: 'Avg Fill Level (%)', data: days.map(() => Math.floor(Math.random()*30+45)), borderColor: '#00b894', backgroundColor: 'rgba(0,184,148,0.08)', fill: true, tension: 0.4, pointRadius: 4 },
+          { label: 'Critical Bins',       data: days.map(() => Math.floor(Math.random()*4+1)),  borderColor: '#d63031', backgroundColor: 'rgba(214,48,49,0.08)',   fill: false, tension: 0.4, pointRadius: 4 }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  </script>
+</body>
+</html>
