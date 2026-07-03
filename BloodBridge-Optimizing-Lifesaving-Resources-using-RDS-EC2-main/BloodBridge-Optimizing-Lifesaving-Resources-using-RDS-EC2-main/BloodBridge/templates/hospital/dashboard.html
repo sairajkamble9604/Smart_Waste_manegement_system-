@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Hospital Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar">{{ session.name[0] }}</div>
+                <div class="sidebar-user-info">
+                    <h4>{{ session.name }}</h4>
+                    <p>Hospital</p>
+                </div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('hospital_dashboard') }}" class="sidebar-nav-item active">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('request_blood') }}" class="sidebar-nav-item">
+                <i class="fas fa-plus-circle"></i> Request Blood
+            </a>
+            <a href="{{ url_for('emergency') }}" class="sidebar-nav-item">
+                <i class="fas fa-ambulance"></i> Emergency
+            </a>
+            <a href="{{ url_for('public_inventory') }}" class="sidebar-nav-item">
+                <i class="fas fa-vial"></i> Inventory
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <div class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>Hospital Dashboard</h1>
+                <p>Manage blood requests and track status</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <div class="aws-badge" style="background: rgba(255,153,0,0.1); color: #FF9900;">
+                    <i class="fab fa-aws"></i>
+                    <span>AWS Cloud</span>
+                </div>
+                <a href="{{ url_for('request_blood') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Request
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card animate-fadeInUp delay-1">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon blue"><i class="fas fa-clipboard-list"></i></div>
+                </div>
+                <div class="stat-card-value">{{ total_requests }}</div>
+                <div class="stat-card-label">Total Requests</div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-2">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon orange"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="stat-card-value">{{ pending_requests }}</div>
+                <div class="stat-card-label">Pending</div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-3">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                </div>
+                <div class="stat-card-value">{{ fulfilled_requests }}</div>
+                <div class="stat-card-label">Fulfilled</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- My Requests -->
+            <div class="card animate-on-scroll">
+                <div class="card-header">
+                    <h3><i class="fas fa-history" style="color: var(--primary-red);"></i> My Requests</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>ID</th><th>Blood</th><th>Qty</th><th>Priority</th><th>Status</th><th>Date</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for req in my_requests %}
+                                <tr>
+                                    <td>#{{ req.id }}</td>
+                                    <td><span class="blood-group bg-{{ req.blood_group|replace('+', 'p')|replace('-', 'n') }}">{{ req.blood_group }}</span></td>
+                                    <td>{{ req.quantity }}</td>
+                                    <td><span class="badge badge-{{ req.priority }}">{{ req.priority|upper }}</span></td>
+                                    <td><span class="badge badge-{{ req.status }}">{{ req.status|title }}</span></td>
+                                    <td>{{ req.created_at.strftime('%b %d') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Donors -->
+            <div class="card animate-on-scroll">
+                <div class="card-header">
+                    <h3><i class="fas fa-users" style="color: var(--primary-red);"></i> Available Donors</h3>
+                </div>
+                <div class="card-body">
+                    {% for donor in available_donors %}
+                    <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--light-gray); {% if loop.last %}border-bottom: none;{% endif %}">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-red), var(--primary-red-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                            {{ donor.name[0] }}
+                        </div>
+                        <div style="flex: 1;">
+                            <h4 style="font-size: 0.95rem; color: var(--dark-blue);">{{ donor.name }}</h4>
+                            <p style="font-size: 0.8rem; color: var(--medium-gray);">{{ donor.city }}</p>
+                        </div>
+                        <span class="blood-group bg-{{ donor.blood_group|replace('+', 'p')|replace('-', 'n') }}" style="width: 35px; height: 35px; font-size: 0.75rem;">{{ donor.blood_group }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

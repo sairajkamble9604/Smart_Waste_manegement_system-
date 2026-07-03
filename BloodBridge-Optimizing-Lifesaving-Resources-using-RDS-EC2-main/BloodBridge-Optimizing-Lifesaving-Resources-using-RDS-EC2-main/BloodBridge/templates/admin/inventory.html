@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar">{{ session.name[0] }}</div>
+                <div class="sidebar-user-info">
+                    <h4>{{ session.name }}</h4>
+                    <p>{{ session.role }}</p>
+                </div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="sidebar-nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('admin_users') }}" class="sidebar-nav-item"><i class="fas fa-users"></i> Users</a>
+            <a href="{{ url_for('admin_requests') }}" class="sidebar-nav-item"><i class="fas fa-clipboard-list"></i> Requests</a>
+            <a href="{{ url_for('admin_inventory') }}" class="sidebar-nav-item active"><i class="fas fa-vial"></i> Inventory</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <div class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>Blood Inventory</h1>
+                <p>Real-time blood stock monitoring</p>
+            </div>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 2rem;">
+            {% for item in inventory %}
+            <div class="stat-card animate-fadeInUp delay-{{ loop.index }}">
+                <div class="stat-card-header">
+                    <span class="blood-group bg-{{ item.blood_group|replace('+', 'p')|replace('-', 'n') }}">{{ item.blood_group }}</span>
+                    {% if item.units < item.min_threshold %}
+                    <span class="badge badge-critical"><i class="fas fa-exclamation"></i> LOW</span>
+                    {% endif %}
+                </div>
+                <div class="stat-card-value">{{ item.units }}</div>
+                <div class="stat-card-label">Units Available</div>
+                <div class="stat-card-trend {% if item.units < item.min_threshold %}down{% else %}up{% endif %}">
+                    {% if item.units < item.min_threshold %}
+                    <i class="fas fa-exclamation-triangle"></i> Below threshold
+                    {% else %}
+                    <i class="fas fa-check-circle"></i> Stock OK
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="card animate-on-scroll">
+            <div class="card-header">
+                <h3><i class="fas fa-vial" style="color: var(--primary-red);"></i> Inventory Details</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Blood Group</th><th>Units</th><th>Min Threshold</th><th>Status</th><th>Last Updated</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inventory %}
+                            <tr>
+                                <td><span class="blood-group bg-{{ item.blood_group|replace('+', 'p')|replace('-', 'n') }}">{{ item.blood_group }}</span></td>
+                                <td><strong>{{ item.units }}</strong></td>
+                                <td>{{ item.min_threshold }}</td>
+                                <td>
+                                    {% if item.units < item.min_threshold %}
+                                    <span class="badge badge-critical"><i class="fas fa-exclamation"></i> Critical</span>
+                                    {% elif item.units < item.min_threshold * 2 %}
+                                    <span class="badge badge-high"><i class="fas fa-exclamation-triangle"></i> Low</span>
+                                    {% else %}
+                                    <span class="badge badge-fulfilled"><i class="fas fa-check"></i> Normal</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

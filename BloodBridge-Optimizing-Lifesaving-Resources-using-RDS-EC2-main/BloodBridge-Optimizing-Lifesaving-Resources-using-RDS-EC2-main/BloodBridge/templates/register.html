@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-page {
+        min-height: calc(100vh - 70px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--dark-blue) 0%, var(--navy) 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-page::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(230,57,70,0.2) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .auth-container {
+        max-width: 600px;
+        width: 100%;
+        background: white;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        z-index: 2;
+    }
+
+    .auth-header-banner {
+        background: linear-gradient(135deg, var(--primary-red), var(--primary-red-dark));
+        padding: 2rem;
+        text-align: center;
+        color: white;
+    }
+
+    .auth-header-banner i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        animation: heartbeat 2s ease-in-out infinite;
+    }
+
+    .auth-header-banner h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.5rem;
+    }
+
+    .auth-form-section {
+        padding: 2.5rem;
+    }
+
+    .auth-form .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .auth-form .form-control {
+        padding: 0.9rem 1rem;
+    }
+
+    .auth-form .btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--light-gray);
+    }
+
+    .auth-footer p {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+    }
+
+    .auth-footer a {
+        color: var(--primary-red);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auth-footer a:hover { text-decoration: underline; }
+
+    .blood-group-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+
+    .blood-group-option {
+        position: relative;
+    }
+
+    .blood-group-option input {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .blood-group-option label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem;
+        border: 2px solid var(--light-gray);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+
+    .blood-group-option input:checked + label {
+        border-color: var(--primary-red);
+        background: rgba(230, 57, 70, 0.1);
+        color: var(--primary-red);
+    }
+
+    .blood-group-option label:hover {
+        border-color: var(--primary-red-light);
+    }
+
+    @media (max-width: 768px) {
+        .auth-form-section { padding: 1.5rem; }
+        .blood-group-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container animate-fadeInUp">
+        <div class="auth-header-banner">
+            <i class="fas fa-hand-holding-heart"></i>
+            <h2>Become a Blood Donor</h2>
+        </div>
+        <div class="auth-form-section">
+            <form class="auth-form" method="POST" action="{{ url_for('register') }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control" placeholder="john@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="Min 6 characters" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" name="phone" class="form-control" placeholder="+1 555-0000" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Blood Group</label>
+                    <div class="blood-group-grid">
+                        <div class="blood-group-option">
+                            <input type="radio" name="blood_group" id="bg_ap" value="A+" required>
+                            <label for="bg_ap">A+</label>
+                        </div>
+                        <div class="blood-group-option">
+                            <input type="radio" name="blood_group" id="bg_an" value="A-">
+                            <label for="bg_an">A-</label>
+                        </div>
+                        <div class="blood-group-option">
+                            <input type="radio" name="blood_group" id="bg_bp" value="B+">
+                            <label for="bg_bp">B+</label>
+                        </div>
+                        <div class="blood-group-option">
+                            <input type="radio" name="blood_group" id="bg_bn" value="B-">
+                            <label for="bg_bn">B-</label>
+                        </div>
+                        <div class="blood-group-option">
+                            <input type="radio" name="blood_group" id="bg_abp" value="AB+">
+                            <label for="bg_abp">AB+</label>
+                        </div>
+                        <div class="blood-group-option">
+                            <input type="radio" name="blood_group" id="bg_abn" value="AB-">
+                            <label for="bg_abn">AB-</label>
+                        </div>
+                        <div class="blood-group-option">
+                            <input type="radio" name="blood_group" id="bg_op" value="O+">
+                            <label for="bg_op">O+</label>
+                        </div>
+                        <div class="blood-group-option">
+                            <input type="radio" name="blood_group" id="bg_on" value="O-">
+                            <label for="bg_on">O-</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Age</label>
+                        <input type="number" name="age" class="form-control" placeholder="25" min="18" max="65" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select name="gender" class="form-control" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <textarea name="address" class="form-control" placeholder="Your full address" rows="2" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">City</label>
+                        <input type="text" name="city" class="form-control" placeholder="New York" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Donation Date (Optional)</label>
+                        <input type="date" name="last_donation" class="form-control">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Register as Donor
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

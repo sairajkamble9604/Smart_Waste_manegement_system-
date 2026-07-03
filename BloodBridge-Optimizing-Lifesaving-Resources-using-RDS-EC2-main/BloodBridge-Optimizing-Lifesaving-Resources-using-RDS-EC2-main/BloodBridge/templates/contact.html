@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Contact{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-hero {
+        background: linear-gradient(135deg, var(--dark-blue), var(--navy));
+        padding: 5rem 2rem;
+        text-align: center;
+        color: white;
+    }
+    .contact-hero h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    .contact-hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .contact-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+    }
+    .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+    }
+    .contact-info h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2rem;
+        color: var(--dark-blue);
+        margin-bottom: 1rem;
+    }
+    .contact-info p {
+        color: var(--medium-gray);
+        line-height: 1.8;
+        margin-bottom: 2rem;
+    }
+    .contact-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .contact-item-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, rgba(230,57,70,0.1), rgba(230,57,70,0.05));
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-red);
+        font-size: 1.2rem;
+    }
+    .contact-item h4 {
+        font-size: 1rem;
+        color: var(--dark-blue);
+        margin-bottom: 0.25rem;
+    }
+    .contact-item p {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    .contact-form-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-md);
+    }
+    .contact-form-card h3 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.5rem;
+        color: var(--dark-blue);
+        margin-bottom: 1.5rem;
+    }
+    @media (max-width: 1024px) {
+        .contact-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contact-hero animate-fadeIn">
+    <h1>Contact Us</h1>
+    <p>Have questions about BloodBridge? We are here to help. Reach out to our team.</p>
+</div>
+
+<div class="contact-content">
+    <div class="contact-grid">
+        <div class="contact-info animate-on-scroll">
+            <h2>Get in Touch</h2>
+            <p>Whether you are a hospital looking to partner with us, a donor with questions, or a developer interested in our AWS architecture, we would love to hear from you.</p>
+
+            <div class="contact-item">
+                <div class="contact-item-icon"><i class="fas fa-envelope"></i></div>
+                <div>
+                    <h4>Email</h4>
+                    <p>contact@bloodbridge.com<br>support@bloodbridge.com</p>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-item-icon"><i class="fas fa-phone"></i></div>
+                <div>
+                    <h4>Phone</h4>
+                    <p>+1 (555) 0100<br>+1 (555) 0101</p>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-item-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div>
+                    <h4>Address</h4>
+                    <p>123 Healthcare Avenue<br>New York, NY 10001</p>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-item-icon"><i class="fab fa-aws"></i></div>
+                <div>
+                    <h4>Cloud Infrastructure</h4>
+                    <p>AWS US-East-1 (N. Virginia)<br>Multi-AZ Deployment</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form-card animate-on-scroll">
+            <h3>Send a Message</h3>
+            <form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" placeholder="John">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" placeholder="Doe">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" placeholder="john@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <select class="form-control">
+                        <option>General Inquiry</option>
+                        <option>Hospital Partnership</option>
+                        <option>Donor Support</option>
+                        <option>Technical Issue</option>
+                        <option>AWS Architecture</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-control" rows="4" placeholder="How can we help you?"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Requests{% endblock %}
+
+{% block extra_css %}
+<style>
+    .emergency-hero {
+        background: linear-gradient(135deg, #721c24, #dc3545);
+        padding: 4rem 2rem;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    .emergency-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: rotate 30s linear infinite;
+    }
+    .emergency-hero h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 2;
+    }
+    .emergency-hero p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+    .emergency-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+    }
+    .emergency-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow-sm);
+        border-left: 4px solid var(--primary-red);
+        transition: var(--transition);
+    }
+    .emergency-card:hover {
+        transform: translateX(8px);
+        box-shadow: var(--shadow-md);
+    }
+    .emergency-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+    }
+    .emergency-card h3 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.1rem;
+        color: var(--dark-blue);
+    }
+    .emergency-card p {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    .emergency-card-footer {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--light-gray);
+    }
+    .emergency-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--dark-gray);
+    }
+    .emergency-stat i {
+        color: var(--primary-red);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="emergency-hero animate-fadeIn">
+    <h1><i class="fas fa-ambulance"></i> Emergency Blood Requests</h1>
+    <p>Critical blood requests that need immediate attention. If you can help, please contact the hospital or register as a donor.</p>
+</div>
+
+<div class="emergency-content">
+    <div class="section-header" style="margin-bottom: 2rem;">
+        <h2 class="section-title">Critical Requests</h2>
+        <p class="section-subtitle">These requests are marked as critical priority and need immediate response.</p>
+    </div>
+
+    {% if emergency_requests %}
+        {% for req in emergency_requests %}
+        <div class="emergency-card animate-on-scroll">
+            <div class="emergency-card-header">
+                <div>
+                    <h3><i class="fas fa-hospital" style="color: var(--primary-red);"></i> {{ req.hospital_name }}</h3>
+                    <p style="margin-top: 0.25rem;"><i class="fas fa-user"></i> Patient: {{ req.patient_name or 'Anonymous' }}</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="badge badge-critical" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        <i class="fas fa-exclamation"></i> CRITICAL
+                    </span>
+                    <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--medium-gray);">
+                        #{{ req.id }} | {{ req.created_at.strftime('%b %d, %Y') }}
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 2rem; align-items: center;">
+                <div style="text-align: center;">
+                    <span class="blood-group bg-{{ req.blood_group|replace('+', 'p')|replace('-', 'n') }}" style="width: 60px; height: 60px; font-size: 1.2rem;">{{ req.blood_group }}</span>
+                    <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--medium-gray);">Blood Group</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-family: 'Poppins', sans-serif; font-size: 2rem; font-weight: 700; color: var(--primary-red);">{{ req.quantity }}</div>
+                    <p style="font-size: 0.8rem; color: var(--medium-gray);">Units Needed</p>
+                </div>
+                <div style="flex: 1;">
+                    <p><strong>Reason:</strong> {{ req.reason or 'No details provided' }}</p>
+                    <p><strong>Required By:</strong> {{ req.required_by_date or 'As soon as possible' }}</p>
+                </div>
+            </div>
+            <div class="emergency-card-footer">
+                <div class="emergency-stat"><i class="fas fa-clock"></i> Status: {{ req.status|title }}</div>
+                <div class="emergency-stat"><i class="fas fa-calendar"></i> Posted: {{ req.created_at.strftime('%Y-%m-%d') }}</div>
+                <a href="{{ url_for('register') }}" class="btn btn-sm btn-primary" style="margin-left: auto;">
+                    <i class="fas fa-hand-holding-heart"></i> I Can Donate
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state" style="background: white; border-radius: var(--radius-lg); padding: 4rem;">
+            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+            <h3>No Critical Requests</h3>
+            <p>There are currently no critical emergency requests. All blood needs are being met.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

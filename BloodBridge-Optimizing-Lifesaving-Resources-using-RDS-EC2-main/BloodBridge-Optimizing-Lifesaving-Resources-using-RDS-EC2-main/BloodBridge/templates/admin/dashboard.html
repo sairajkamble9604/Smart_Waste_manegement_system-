@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar">{{ session.name[0] }}</div>
+                <div class="sidebar-user-info">
+                    <h4>{{ session.name }}</h4>
+                    <p>{{ session.role }}</p>
+                </div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="sidebar-nav-item active">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin_users') }}" class="sidebar-nav-item">
+                <i class="fas fa-users"></i> Users
+            </a>
+            <a href="{{ url_for('admin_requests') }}" class="sidebar-nav-item">
+                <i class="fas fa-clipboard-list"></i> Requests
+            </a>
+            <a href="{{ url_for('admin_inventory') }}" class="sidebar-nav-item">
+                <i class="fas fa-vial"></i> Inventory
+            </a>
+            <a href="{{ url_for('emergency') }}" class="sidebar-nav-item">
+                <i class="fas fa-ambulance"></i> Emergency
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('logout') }}">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>Admin Dashboard</h1>
+                <p>Overview of BloodBridge system</p>
+            </div>
+            <div class="aws-badge" style="background: rgba(255,153,0,0.1); color: #FF9900;">
+                <i class="fab fa-aws"></i>
+                <span>AWS Cloud Connected</span>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card animate-fadeInUp delay-1">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon red"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-card-value">{{ total_donors }}</div>
+                <div class="stat-card-label">Total Donors</div>
+                <div class="stat-card-trend up">
+                    <i class="fas fa-arrow-up"></i> 12% this month
+                </div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-2">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon blue"><i class="fas fa-clipboard-list"></i></div>
+                </div>
+                <div class="stat-card-value">{{ total_requests }}</div>
+                <div class="stat-card-label">Total Requests</div>
+                <div class="stat-card-trend up">
+                    <i class="fas fa-arrow-up"></i> 8% this week
+                </div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-3">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon orange"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="stat-card-value">{{ pending_requests }}</div>
+                <div class="stat-card-label">Pending Requests</div>
+                <div class="stat-card-trend down">
+                    <i class="fas fa-arrow-down"></i> Needs attention
+                </div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-4">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                </div>
+                <div class="stat-card-value">{{ fulfilled_requests }}</div>
+                <div class="stat-card-label">Fulfilled</div>
+                <div class="stat-card-trend up">
+                    <i class="fas fa-arrow-up"></i> 94% success rate
+                </div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-5">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon blue"><i class="fas fa-hospital"></i></div>
+                </div>
+                <div class="stat-card-value">{{ total_hospitals }}</div>
+                <div class="stat-card-label">Partner Hospitals</div>
+                <div class="stat-card-trend up">
+                    <i class="fas fa-arrow-up"></i> 3 new this month
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts & Tables Row -->
+        <div class="grid-2" style="margin-bottom: 2rem;">
+            <div class="card animate-on-scroll">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-pie" style="color: var(--primary-red);"></i> Request Status Distribution</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="requestChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="card animate-on-scroll">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-bar" style="color: var(--primary-red);"></i> Blood Inventory Levels</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="inventoryChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Requests -->
+        <div class="card animate-on-scroll" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <h3><i class="fas fa-clipboard-list" style="color: var(--primary-red);"></i> Recent Blood Requests</h3>
+                <a href="{{ url_for('admin_requests') }}" class="btn btn-sm btn-outline">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Hospital</th>
+                                <th>Blood Group</th>
+                                <th>Quantity</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in recent_requests %}
+                            <tr>
+                                <td>#{{ req.id }}</td>
+                                <td>{{ req.hospital_name }}</td>
+                                <td><span class="blood-group bg-{{ req.blood_group|replace('+', 'p')|replace('-', 'n') }}">{{ req.blood_group }}</span></td>
+                                <td>{{ req.quantity }} units</td>
+                                <td><span class="badge badge-{{ req.priority }}">{{ req.priority|upper }}</span></td>
+                                <td><span class="badge badge-{{ req.status }}">{{ req.status|title }}</span></td>
+                                <td>{{ req.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('update_request_status', request_id=req.id) }}" style="display: inline;">
+                                        <select name="status" onchange="this.form.submit()" class="form-control" style="width: auto; padding: 0.35rem;">
+                                            <option value="">Update</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="fulfilled">Fulfilled</option>
+                                            <option value="rejected">Rejected</option>
+                                        </select>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Donors -->
+        <div class="card animate-on-scroll">
+            <div class="card-header">
+                <h3><i class="fas fa-users" style="color: var(--primary-red);"></i> Recent Donors</h3>
+                <a href="{{ url_for('admin_users') }}" class="btn btn-sm btn-outline">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Blood Group</th>
+                                <th>City</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donor in recent_donors %}
+                            <tr>
+                                <td>#{{ donor.id }}</td>
+                                <td>{{ donor.name }}</td>
+                                <td><span class="blood-group bg-{{ donor.blood_group|replace('+', 'p')|replace('-', 'n') }}">{{ donor.blood_group }}</span></td>
+                                <td>{{ donor.city }}</td>
+                                <td><span class="badge badge-{{ donor.status }}">{{ donor.status|title }}</span></td>
+                                <td>{{ donor.created_at.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Request Status Chart
+    fetch('/api/request_stats')
+        .then(res => res.json())
+        .then(data => {
+            const ctx = document.getElementById('requestChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(d => d.status),
+                    datasets: [{
+                        data: data.map(d => d.count),
+                        backgroundColor: ['#ffc107', '#17a2b8', '#28a745', '#dc3545'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        });
+
+    // Inventory Chart
+    fetch('/api/inventory')
+        .then(res => res.json())
+        .then(data => {
+            const ctx = document.getElementById('inventoryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.blood_group),
+                    datasets: [{
+                        label: 'Units Available',
+                        data: data.map(d => d.units),
+                        backgroundColor: '#E63946',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        });
+</script>
+{% endblock %}

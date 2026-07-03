@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Blood Bank Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar">{{ session.name[0] }}</div>
+                <div class="sidebar-user-info">
+                    <h4>{{ session.name }}</h4>
+                    <p>Blood Bank</p>
+                </div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('bloodbank_dashboard') }}" class="sidebar-nav-item active">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('emergency') }}" class="sidebar-nav-item">
+                <i class="fas fa-ambulance"></i> Emergency
+            </a>
+            <a href="{{ url_for('public_inventory') }}" class="sidebar-nav-item">
+                <i class="fas fa-vial"></i> Public Inventory
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <div class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>Blood Bank Dashboard</h1>
+                <p>Manage inventory and track requests</p>
+            </div>
+            <div class="aws-badge" style="background: rgba(255,153,0,0.1); color: #FF9900;">
+                <i class="fab fa-aws"></i>
+                <span>AWS Cloud Connected</span>
+            </div>
+        </div>
+
+        <!-- Alert Banner -->
+        {% if low_stock > 0 %}
+        <div style="background: linear-gradient(135deg, #f8d7da, #fff3cd); border: 1px solid #dc3545; border-radius: var(--radius-md); padding: 1rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 40px; height: 40px; background: rgba(220,53,69,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #dc3545;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+                <h4 style="color: #721c24; font-size: 1rem; margin-bottom: 0.25rem;">Low Stock Alert</h4>
+                <p style="color: #856404; font-size: 0.9rem; margin: 0;">{{ low_stock }} blood group(s) are below minimum threshold. Please replenish stock immediately.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Stats -->
+        <div class="stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card animate-fadeInUp delay-1">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon red"><i class="fas fa-vials"></i></div>
+                </div>
+                <div class="stat-card-value">{{ total_units }}</div>
+                <div class="stat-card-label">Total Units</div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-2">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+                </div>
+                <div class="stat-card-value">{{ low_stock }}</div>
+                <div class="stat-card-label">Low Stock Items</div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-3">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon blue"><i class="fas fa-clipboard-list"></i></div>
+                </div>
+                <div class="stat-card-value">{{ pending_requests }}</div>
+                <div class="stat-card-label">Pending Requests</div>
+            </div>
+        </div>
+
+        <!-- Inventory Management -->
+        <div class="card animate-on-scroll" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <h3><i class="fas fa-vial" style="color: var(--primary-red);"></i> Inventory Management</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Blood Group</th>
+                                <th>Current Stock</th>
+                                <th>Min Threshold</th>
+                                <th>Status</th>
+                                <th>Update Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inventory %}
+                            <tr>
+                                <td><span class="blood-group bg-{{ item.blood_group|replace('+', 'p')|replace('-', 'n') }}">{{ item.blood_group }}</span></td>
+                                <td><strong style="font-size: 1.1rem;">{{ item.units }}</strong> units</td>
+                                <td>{{ item.min_threshold }} units</td>
+                                <td>
+                                    {% if item.units < item.min_threshold %}
+                                    <span class="badge badge-critical"><i class="fas fa-exclamation"></i> Critical</span>
+                                    {% elif item.units < item.min_threshold * 2 %}
+                                    <span class="badge badge-high"><i class="fas fa-exclamation-triangle"></i> Low</span>
+                                    {% else %}
+                                    <span class="badge badge-fulfilled"><i class="fas fa-check"></i> Normal</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('update_inventory') }}" style="display: flex; gap: 0.5rem;">
+                                        <input type="hidden" name="blood_group" value="{{ item.blood_group }}">
+                                        <input type="number" name="units" class="form-control" style="width: 80px; padding: 0.35rem;" min="1" placeholder="Qty" required>
+                                        <select name="operation" class="form-control" style="width: auto; padding: 0.35rem;">
+                                            <option value="add">Add</option>
+                                            <option value="subtract">Remove</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Requests -->
+        <div class="card animate-on-scroll">
+            <div class="card-header">
+                <h3><i class="fas fa-clipboard-list" style="color: var(--primary-red);"></i> All Blood Requests</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>Hospital</th><th>Patient</th><th>Blood</th><th>Qty</th><th>Priority</th><th>Status</th><th>Required By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in all_requests %}
+                            <tr>
+                                <td>#{{ req.id }}</td>
+                                <td>{{ req.hospital_name }}</td>
+                                <td>{{ req.patient_name or 'N/A' }}</td>
+                                <td><span class="blood-group bg-{{ req.blood_group|replace('+', 'p')|replace('-', 'n') }}">{{ req.blood_group }}</span></td>
+                                <td>{{ req.quantity }}</td>
+                                <td><span class="badge badge-{{ req.priority }}">{{ req.priority|upper }}</span></td>
+                                <td><span class="badge badge-{{ req.status }}">{{ req.status|title }}</span></td>
+                                <td>{{ req.required_by_date or 'N/A' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

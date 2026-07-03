@@ -1,0 +1,690 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        background: linear-gradient(135deg, var(--dark-blue) 0%, var(--navy) 50%, var(--dark-blue-light) 100%);
+        background-size: 200% 200%;
+        animation: gradientShift 15s ease infinite;
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        padding: 0 2rem;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(230,57,70,0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .hero::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 8s ease-in-out infinite reverse;
+    }
+
+    .hero-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-content h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: white;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-content h1 span {
+        background: linear-gradient(135deg, var(--primary-red), var(--primary-red-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-content p {
+        font-size: 1.1rem;
+        color: rgba(255,255,255,0.8);
+        margin-bottom: 2rem;
+        line-height: 1.8;
+        max-width: 500px;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .hero-stat {
+        text-align: center;
+    }
+
+    .hero-stat-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-red);
+    }
+
+    .hero-stat-label {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.6);
+    }
+
+    .hero-visual {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .hero-visual-main {
+        width: 400px;
+        height: 400px;
+        background: linear-gradient(135deg, rgba(230,57,70,0.2), rgba(29,53,87,0.3));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        border: 2px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-visual-main i {
+        font-size: 8rem;
+        color: rgba(230,57,70,0.8);
+        animation: heartbeat 2s ease-in-out infinite;
+    }
+
+    .orbit {
+        position: absolute;
+        border: 1px dashed rgba(255,255,255,0.2);
+        border-radius: 50%;
+        animation: rotate 20s linear infinite;
+    }
+
+    .orbit-1 { width: 500px; height: 500px; }
+    .orbit-2 { width: 600px; height: 600px; animation-duration: 30s; animation-direction: reverse; }
+
+    .orbit-dot {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: var(--primary-red);
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(230,57,70,0.5);
+    }
+
+    .orbit-1 .orbit-dot { top: 0; left: 50%; transform: translateX(-50%); }
+    .orbit-2 .orbit-dot { bottom: 0; left: 50%; transform: translateX(-50%); }
+
+    .features {
+        padding: 6rem 2rem;
+        background: var(--off-white);
+    }
+
+    .features-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .section-header h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2.5rem;
+        color: var(--dark-blue);
+        margin-bottom: 1rem;
+    }
+
+    .section-header p {
+        color: var(--medium-gray);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2.5rem;
+        text-align: center;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-red), var(--primary-red-dark));
+        transform: scaleX(0);
+        transition: var(--transition);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .feature-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, rgba(230,57,70,0.1), rgba(230,57,70,0.05));
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 1.8rem;
+        color: var(--primary-red);
+        transition: var(--transition);
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .feature-card h3 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.25rem;
+        color: var(--dark-blue);
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+        color: var(--medium-gray);
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+
+    .how-it-works {
+        padding: 6rem 2rem;
+        background: white;
+    }
+
+    .how-it-works-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .step-card {
+        text-align: center;
+        position: relative;
+    }
+
+    .step-number {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-red), var(--primary-red-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 auto 1.5rem;
+        position: relative;
+    }
+
+    .step-number::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: -100px;
+        width: 80px;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary-red), transparent);
+    }
+
+    .step-card:last-child .step-number::after { display: none; }
+
+    .step-card h3 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.1rem;
+        color: var(--dark-blue);
+        margin-bottom: 0.5rem;
+    }
+
+    .step-card p {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+    }
+
+    .cloud-section {
+        padding: 6rem 2rem;
+        background: linear-gradient(135deg, var(--navy), var(--dark-blue));
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cloud-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .cloud-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .cloud-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .cloud-header h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    .cloud-header p {
+        color: rgba(255,255,255,0.7);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .architecture-diagram {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 3rem;
+    }
+
+    .arch-node {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 2rem;
+        text-align: center;
+        min-width: 150px;
+        transition: var(--transition);
+    }
+
+    .arch-node:hover {
+        background: rgba(255,255,255,0.15);
+        transform: translateY(-4px);
+    }
+
+    .arch-node i {
+        font-size: 2rem;
+        color: #FF9900;
+        margin-bottom: 0.5rem;
+    }
+
+    .arch-node h4 {
+        color: white;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .arch-node p {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.75rem;
+    }
+
+    .arch-arrow {
+        color: rgba(255,255,255,0.4);
+        font-size: 1.5rem;
+    }
+
+    .cloud-features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+
+    .cloud-feature {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        transition: var(--transition);
+    }
+
+    .cloud-feature:hover {
+        background: rgba(255,255,255,0.1);
+        transform: translateY(-4px);
+    }
+
+    .cloud-feature i {
+        font-size: 1.5rem;
+        color: #FF9900;
+        margin-bottom: 1rem;
+    }
+
+    .cloud-feature h3 {
+        color: white;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .cloud-feature p {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.85rem;
+    }
+
+    .cta-section {
+        padding: 6rem 2rem;
+        background: var(--off-white);
+    }
+
+    .cta-container {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .cta-container h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2.5rem;
+        color: var(--dark-blue);
+        margin-bottom: 1rem;
+    }
+
+    .cta-container p {
+        color: var(--medium-gray);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    @media (max-width: 1024px) {
+        .hero-container { grid-template-columns: 1fr; text-align: center; }
+        .hero-content p { margin: 0 auto 2rem; }
+        .hero-buttons { justify-content: center; }
+        .hero-stats { justify-content: center; }
+        .hero-visual { display: none; }
+        .features-grid { grid-template-columns: repeat(2, 1fr); }
+        .steps-grid { grid-template-columns: repeat(2, 1fr); }
+        .cloud-features { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        .hero-content h1 { font-size: 2.5rem; }
+        .features-grid { grid-template-columns: 1fr; }
+        .steps-grid { grid-template-columns: 1fr; }
+        .step-number::after { display: none; }
+        .cloud-features { grid-template-columns: 1fr; }
+        .architecture-diagram { flex-direction: column; }
+        .arch-arrow { transform: rotate(90deg); }
+        .cta-buttons { flex-direction: column; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-container">
+        <div class="hero-content animate-fadeInUp">
+            <h1>Save Lives with <span>BloodBridge</span></h1>
+            <p>Connecting donors, hospitals, and blood banks through cloud-powered technology. Every donation can save up to 3 lives. Join our network today.</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-hand-holding-heart"></i> Become a Donor
+                </a>
+                <a href="{{ url_for('emergency') }}" class="btn btn-outline btn-lg" style="color: white; border-color: white;">
+                    <i class="fas fa-ambulance"></i> Emergency Request
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value">{{ total_donors or 0 }}</div>
+                    <div class="hero-stat-label">Active Donors</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">{{ lives_saved or 0 }}</div>
+                    <div class="hero-stat-label">Lives Saved</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">{{ partner_hospitals or 0 }}</div>
+                    <div class="hero-stat-label">Partner Hospitals</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">{{ active_requests or 0 }}</div>
+                    <div class="hero-stat-label">Active Requests</div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="orbit orbit-1">
+                <div class="orbit-dot"></div>
+            </div>
+            <div class="orbit orbit-2">
+                <div class="orbit-dot"></div>
+            </div>
+            <div class="hero-visual-main">
+                <i class="fas fa-heart-pulse"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="features-container">
+        <div class="section-header animate-on-scroll">
+            <h2>Why Choose BloodBridge?</h2>
+            <p>Our platform leverages cutting-edge cloud technology to optimize blood donation management and emergency response.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card animate-on-scroll delay-1">
+                <div class="feature-icon"><i class="fas fa-cloud"></i></div>
+                <h3>Cloud Architecture</h3>
+                <p>Built on AWS EC2 and RDS for 99.99% uptime, auto-scaling, and global availability.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-2">
+                <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                <h3>Real-Time Matching</h3>
+                <p>Instantly match emergency blood requests with available donors and inventory.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-3">
+                <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+                <h3>Secure & Compliant</h3>
+                <p>HIPAA-compliant data handling with AWS WAF, Shield, and encrypted connections.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-1">
+                <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                <h3>Smart Analytics</h3>
+                <p>AI-powered inventory forecasting and demand prediction for optimal stock levels.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-2">
+                <div class="feature-icon"><i class="fas fa-users"></i></div>
+                <h3>Multi-Role Access</h3>
+                <p>Dedicated dashboards for Admins, Donors, Hospitals, and Blood Bank Managers.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-3">
+                <div class="feature-icon"><i class="fas fa-mobile-screen"></i></div>
+                <h3>Mobile Responsive</h3>
+                <p>Access the platform from any device with our fully responsive design.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <div class="how-it-works-container">
+        <div class="section-header animate-on-scroll">
+            <h2>How It Works</h2>
+            <p>Four simple steps to save lives through our cloud-connected platform.</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card animate-on-scroll delay-1">
+                <div class="step-number">1</div>
+                <h3>Register</h3>
+                <p>Create your account as a donor, hospital, or blood bank manager.</p>
+            </div>
+            <div class="step-card animate-on-scroll delay-2">
+                <div class="step-number">2</div>
+                <h3>Connect</h3>
+                <p>Link with our AWS-powered network of donors and healthcare providers.</p>
+            </div>
+            <div class="step-card animate-on-scroll delay-3">
+                <div class="step-number">3</div>
+                <h3>Request</h3>
+                <p>Hospitals create emergency requests matched with available inventory.</p>
+            </div>
+            <div class="step-card animate-on-scroll delay-4">
+                <div class="step-number">4</div>
+                <h3>Save Lives</h3>
+                <p>Coordinate donations and fulfill requests through our platform.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cloud-section">
+    <div class="cloud-container">
+        <div class="cloud-header animate-on-scroll">
+            <h2><i class="fab fa-aws" style="color: #FF9900;"></i> AWS Cloud Architecture</h2>
+            <p>Our platform is designed for AWS deployment with enterprise-grade reliability, security, and scalability.</p>
+        </div>
+
+        <div class="architecture-diagram animate-on-scroll">
+            <div class="arch-node">
+                <i class="fas fa-users"></i>
+                <h4>Users</h4>
+                <p>Web & Mobile</p>
+            </div>
+            <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-node">
+                <i class="fab fa-aws"></i>
+                <h4>Route 53</h4>
+                <p>DNS Management</p>
+            </div>
+            <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-node">
+                <i class="fas fa-shield-halved"></i>
+                <h4>CloudFront</h4>
+                <p>CDN + WAF</p>
+            </div>
+            <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-node">
+                <i class="fas fa-server"></i>
+                <h4>ALB</h4>
+                <p>Load Balancer</p>
+            </div>
+            <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-node">
+                <i class="fas fa-microchip"></i>
+                <h4>EC2</h4>
+                <p>Flask App</p>
+            </div>
+            <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-node">
+                <i class="fas fa-database"></i>
+                <h4>RDS</h4>
+                <p>MySQL Database</p>
+            </div>
+        </div>
+
+        <div class="cloud-features">
+            <div class="cloud-feature animate-on-scroll delay-1">
+                <i class="fas fa-server"></i>
+                <h3>EC2 Auto-Scaling</h3>
+                <p>Automatically scales EC2 instances based on traffic demand with CloudWatch monitoring.</p>
+            </div>
+            <div class="cloud-feature animate-on-scroll delay-2">
+                <i class="fas fa-database"></i>
+                <h3>RDS Multi-AZ</h3>
+                <p>High availability MySQL database with automated backups and failover support.</p>
+            </div>
+            <div class="cloud-feature animate-on-scroll delay-3">
+                <i class="fas fa-lock"></i>
+                <h3>VPC Security</h3>
+                <p>Isolated network with security groups, NACLs, and encrypted data transmission.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="cta-container animate-on-scroll">
+        <h2>Ready to Make a Difference?</h2>
+        <p>Join thousands of donors and healthcare providers saving lives through BloodBridge's cloud-powered platform.</p>
+        <div class="cta-buttons">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-user-plus"></i> Register as Donor
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-dark btn-lg">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+
+{% block title %}About & Architecture{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-hero {
+        background: linear-gradient(135deg, var(--dark-blue), var(--navy));
+        padding: 5rem 2rem;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    .about-hero h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    .about-hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    .about-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+    }
+    .about-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        margin-bottom: 4rem;
+    }
+    .about-text h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2rem;
+        color: var(--dark-blue);
+        margin-bottom: 1rem;
+    }
+    .about-text p {
+        color: var(--medium-gray);
+        line-height: 1.8;
+        margin-bottom: 1rem;
+    }
+    .about-image {
+        background: linear-gradient(135deg, rgba(230,57,70,0.1), rgba(29,53,87,0.1));
+        border-radius: var(--radius-xl);
+        padding: 3rem;
+        text-align: center;
+    }
+    .about-image i {
+        font-size: 8rem;
+        color: var(--primary-red);
+        animation: heartbeat 2s ease-in-out infinite;
+    }
+    .tech-stack {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 3rem;
+        margin-bottom: 4rem;
+        box-shadow: var(--shadow-sm);
+    }
+    .tech-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    .tech-item {
+        text-align: center;
+        padding: 1.5rem;
+        border: 2px solid var(--light-gray);
+        border-radius: var(--radius-lg);
+        transition: var(--transition);
+    }
+    .tech-item:hover {
+        border-color: var(--primary-red);
+        transform: translateY(-4px);
+    }
+    .tech-item i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    .tech-item h4 {
+        font-size: 1rem;
+        color: var(--dark-blue);
+        margin-bottom: 0.5rem;
+    }
+    .tech-item p {
+        font-size: 0.85rem;
+        color: var(--medium-gray);
+    }
+    .architecture-section {
+        background: linear-gradient(135deg, var(--navy), var(--dark-blue));
+        border-radius: var(--radius-xl);
+        padding: 3rem;
+        color: white;
+        margin-bottom: 4rem;
+    }
+    .architecture-section h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .arch-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 3rem;
+    }
+    .arch-step {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        text-align: center;
+        min-width: 140px;
+    }
+    .arch-step i {
+        font-size: 2rem;
+        color: #FF9900;
+        margin-bottom: 0.5rem;
+    }
+    .arch-step h4 {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    .arch-step p {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.6);
+    }
+    .arch-arrow-big {
+        color: rgba(255,255,255,0.4);
+        font-size: 1.5rem;
+    }
+    .arch-details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+    .arch-detail {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+    }
+    .arch-detail h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .arch-detail h3 i { color: #FF9900; }
+    .arch-detail ul {
+        list-style: none;
+        padding: 0;
+    }
+    .arch-detail li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.8);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .arch-detail li i {
+        color: #28a745;
+        font-size: 0.8rem;
+    }
+    .deployment-section {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 3rem;
+        box-shadow: var(--shadow-sm);
+    }
+    .deployment-section h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2rem;
+        color: var(--dark-blue);
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .deploy-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+    .deploy-card {
+        border: 2px solid var(--light-gray);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        transition: var(--transition);
+    }
+    .deploy-card:hover {
+        border-color: var(--primary-red);
+    }
+    .deploy-card h3 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.1rem;
+        color: var(--dark-blue);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .deploy-card h3 i { color: var(--primary-red); }
+    .deploy-card pre {
+        background: var(--off-white);
+        padding: 1rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        overflow-x: auto;
+        color: var(--dark-gray);
+    }
+    @media (max-width: 1024px) {
+        .about-grid { grid-template-columns: 1fr; }
+        .tech-grid { grid-template-columns: repeat(2, 1fr); }
+        .arch-details { grid-template-columns: 1fr; }
+        .deploy-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+        .tech-grid { grid-template-columns: 1fr; }
+        .arch-flow { flex-direction: column; }
+        .arch-arrow-big { transform: rotate(90deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-hero animate-fadeIn">
+    <h1>About BloodBridge</h1>
+    <p>A cloud-native blood donation management system built with modern web technologies and AWS architecture.</p>
+</div>
+
+<div class="about-content">
+    <div class="about-grid animate-on-scroll">
+        <div class="about-text">
+            <h2>Our Mission</h2>
+            <p>BloodBridge is designed to bridge the gap between blood donors, hospitals, and blood banks through innovative cloud technology. Our platform ensures that lifesaving blood resources are efficiently managed and distributed.</p>
+            <p>Built as a demonstration of modern full-stack development with cloud integration, BloodBridge showcases how healthcare applications can leverage AWS infrastructure for reliability, security, and scalability.</p>
+            <p>Every feature is designed with the user in mind - from the intuitive donor dashboard to the powerful admin analytics, ensuring that saving lives is just a few clicks away.</p>
+        </div>
+        <div class="about-image">
+            <i class="fas fa-heart-pulse"></i>
+        </div>
+    </div>
+
+    <div class="tech-stack animate-on-scroll">
+        <h2 style="font-family: 'Poppins', sans-serif; font-size: 2rem; color: var(--dark-blue); text-align: center; margin-bottom: 0.5rem;">Technology Stack</h2>
+        <p style="text-align: center; color: var(--medium-gray); margin-bottom: 2rem;">Modern technologies powering our platform</p>
+        <div class="tech-grid">
+            <div class="tech-item">
+                <i class="fab fa-python" style="color: #3776AB;"></i>
+                <h4>Python Flask</h4>
+                <p>Backend Framework</p>
+            </div>
+            <div class="tech-item">
+                <i class="fas fa-database" style="color: #4479A1;"></i>
+                <h4>MySQL</h4>
+                <p>Relational Database</p>
+            </div>
+            <div class="tech-item">
+                <i class="fab fa-html5" style="color: #E34F26;"></i>
+                <h4>HTML5 + CSS3</h4>
+                <p>Frontend Structure</p>
+            </div>
+            <div class="tech-item">
+                <i class="fab fa-js" style="color: #F7DF1E;"></i>
+                <h4>JavaScript</h4>
+                <p>Interactive Features</p>
+            </div>
+            <div class="tech-item">
+                <i class="fab fa-aws" style="color: #FF9900;"></i>
+                <h4>AWS Cloud</h4>
+                <p>Cloud Infrastructure</p>
+            </div>
+            <div class="tech-item">
+                <i class="fas fa-chart-bar" style="color: #FF6384;"></i>
+                <h4>Chart.js</h4>
+                <p>Data Visualization</p>
+            </div>
+            <div class="tech-item">
+                <i class="fas fa-shield-halved" style="color: #28a745;"></i>
+                <h4>Werkzeug</h4>
+                <p>Security & Auth</p>
+            </div>
+            <div class="tech-item">
+                <i class="fas fa-mobile-screen" style="color: var(--primary-red);"></i>
+                <h4>Responsive</h4>
+                <p>Mobile-First Design</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="architecture-section animate-on-scroll">
+        <h2><i class="fab fa-aws" style="color: #FF9900;"></i> AWS Cloud Architecture</h2>
+        <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 2rem;">Production-ready architecture for enterprise deployment</p>
+
+        <div class="arch-flow">
+            <div class="arch-step">
+                <i class="fas fa-users"></i>
+                <h4>End Users</h4>
+                <p>Web Browsers</p>
+            </div>
+            <div class="arch-arrow-big"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-step">
+                <i class="fab fa-aws"></i>
+                <h4>Route 53</h4>
+                <p>DNS + Health Checks</p>
+            </div>
+            <div class="arch-arrow-big"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-step">
+                <i class="fas fa-globe"></i>
+                <h4>CloudFront</h4>
+                <p>CDN + SSL</p>
+            </div>
+            <div class="arch-arrow-big"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-step">
+                <i class="fas fa-shield-halved"></i>
+                <h4>WAF + Shield</h4>
+                <p>DDoS Protection</p>
+            </div>
+            <div class="arch-arrow-big"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-step">
+                <i class="fas fa-server"></i>
+                <h4>ALB</h4>
+                <p>Load Balancing</p>
+            </div>
+            <div class="arch-arrow-big"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-step">
+                <i class="fas fa-microchip"></i>
+                <h4>EC2 (Flask)</h4>
+                <p>Auto-Scaling Group</p>
+            </div>
+            <div class="arch-arrow-big"><i class="fas fa-arrow-right"></i></div>
+            <div class="arch-step">
+                <i class="fas fa-database"></i>
+                <h4>RDS MySQL</h4>
+                <p>Multi-AZ + Backups</p>
+            </div>
+        </div>
+
+        <div class="arch-details">
+            <div class="arch-detail">
+                <h3><i class="fas fa-server"></i> Compute Layer</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> EC2 t3.medium instances</li>
+                    <li><i class="fas fa-check"></i> Auto Scaling Groups</li>
+                    <li><i class="fas fa-check"></i> Launch Templates</li>
+                    <li><i class="fas fa-check"></i> Target Tracking Policies</li>
+                    <li><i class="fas fa-check"></i> Application Load Balancer</li>
+                </ul>
+            </div>
+            <div class="arch-detail">
+                <h3><i class="fas fa-database"></i> Data Layer</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> RDS MySQL 8.0</li>
+                    <li><i class="fas fa-check"></i> Multi-AZ Deployment</li>
+                    <li><i class="fas fa-check"></i> Automated Backups</li>
+                    <li><i class="fas fa-check"></i> Read Replicas</li>
+                    <li><i class="fas fa-check"></i> Parameter Groups</li>
+                </ul>
+            </div>
+            <div class="arch-detail">
+                <h3><i class="fas fa-lock"></i> Security Layer</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> VPC with Private Subnets</li>
+                    <li><i class="fas fa-check"></i> Security Groups</li>
+                    <li><i class="fas fa-check"></i> NACLs</li>
+                    <li><i class="fas fa-check"></i> AWS WAF Rules</li>
+                    <li><i class="fas fa-check"></i> SSL/TLS Encryption</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="deployment-section animate-on-scroll">
+        <h2>Local Development Setup</h2>
+        <p style="text-align: center; color: var(--medium-gray); margin-bottom: 2rem;">Run BloodBridge locally for development and demonstration</p>
+        <div class="deploy-grid">
+            <div class="deploy-card">
+                <h3><i class="fas fa-terminal"></i> Prerequisites</h3>
+                <pre>Python 3.8+
+MySQL 8.0 (XAMPP/WAMP)
+pip package manager
+Git</pre>
+            </div>
+            <div class="deploy-card">
+                <h3><i class="fas fa-download"></i> Installation</h3>
+                <pre>git clone repo
+cd BloodBridge
+pip install -r requirements.txt
+python app.py</pre>
+            </div>
+            <div class="deploy-card">
+                <h3><i class="fas fa-database"></i> Database Setup</h3>
+                <pre>CREATE DATABASE bloodbridge_db;
+USE bloodbridge_db;
+SOURCE database/schema.sql;</pre>
+            </div>
+            <div class="deploy-card">
+                <h3><i class="fas fa-rocket"></i> AWS Deployment</h3>
+                <pre>1. Launch EC2 instance
+2. Install Python & MySQL client
+3. Configure RDS endpoint
+4. Deploy with Gunicorn
+5. Setup ALB + Route 53</pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

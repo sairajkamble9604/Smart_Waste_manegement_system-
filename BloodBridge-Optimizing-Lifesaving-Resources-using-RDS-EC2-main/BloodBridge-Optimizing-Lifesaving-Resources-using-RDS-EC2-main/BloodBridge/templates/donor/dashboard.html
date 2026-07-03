@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Donor Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar">{{ session.name[0] }}</div>
+                <div class="sidebar-user-info">
+                    <h4>{{ session.name }}</h4>
+                    <p>Donor</p>
+                </div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('donor_dashboard') }}" class="sidebar-nav-item active">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('donor_profile') }}" class="sidebar-nav-item">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="{{ url_for('emergency') }}" class="sidebar-nav-item">
+                <i class="fas fa-ambulance"></i> Emergency
+            </a>
+            <a href="{{ url_for('public_inventory') }}" class="sidebar-nav-item">
+                <i class="fas fa-vial"></i> Inventory
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <div class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>Donor Dashboard</h1>
+                <p>Welcome back, {{ donor.name }}</p>
+            </div>
+            <div class="aws-badge" style="background: rgba(255,153,0,0.1); color: #FF9900;">
+                <i class="fab fa-aws"></i>
+                <span>AWS Cloud Connected</span>
+            </div>
+        </div>
+
+        <!-- Eligibility Card -->
+        <div class="card animate-on-scroll" style="margin-bottom: 2rem; {% if eligibility.eligible %}border-left: 4px solid #28a745;{% else %}border-left: 4px solid #ffc107;{% endif %}">
+            <div class="card-body" style="display: flex; align-items: center; gap: 1.5rem;">
+                <div style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; {% if eligibility.eligible %}background: rgba(40,167,69,0.1); color: #28a745;{% else %}background: rgba(255,193,7,0.1); color: #856404;{% endif %}">
+                    <i class="fas fa-{% if eligibility.eligible %}check-circle{% else %}clock{% endif %}"></i>
+                </div>
+                <div>
+                    <h3 style="font-family: 'Poppins', sans-serif; font-size: 1.1rem; margin-bottom: 0.25rem;">
+                        {% if eligibility.eligible %}You are Eligible to Donate!{% else %}Not Yet Eligible{% endif %}
+                    </h3>
+                    <p style="color: var(--medium-gray); font-size: 0.9rem;">{{ eligibility.message }}</p>
+                    {% if not eligibility.eligible %}
+                    <p style="color: var(--primary-red); font-size: 0.85rem; margin-top: 0.25rem;">
+                        <i class="fas fa-info-circle"></i> {{ eligibility.days_left }} days remaining
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Donor Info Cards -->
+        <div class="stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card animate-fadeInUp delay-1">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon red"><i class="fas fa-tint"></i></div>
+                </div>
+                <div class="stat-card-value" style="font-size: 1.5rem;">{{ donor.blood_group }}</div>
+                <div class="stat-card-label">Your Blood Group</div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-2">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon blue"><i class="fas fa-calendar"></i></div>
+                </div>
+                <div class="stat-card-value" style="font-size: 1.5rem;">
+                    {% if donor.last_donation_date %}
+                        {{ donor.last_donation_date.strftime('%b %d, %Y') }}
+                    {% else %}
+                        Never
+                    {% endif %}
+                </div>
+                <div class="stat-card-label">Last Donation</div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-3">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon green"><i class="fas fa-heart"></i></div>
+                </div>
+                <div class="stat-card-value" style="font-size: 1.5rem;">{{ donation_history|length }}</div>
+                <div class="stat-card-label">Total Donations</div>
+            </div>
+            <div class="stat-card animate-fadeInUp delay-4">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon orange"><i class="fas fa-map-marker-alt"></i></div>
+                </div>
+                <div class="stat-card-value" style="font-size: 1.5rem;">{{ donor.city }}</div>
+                <div class="stat-card-label">Location</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Blood Drives -->
+            <div class="card animate-on-scroll">
+                <div class="card-header">
+                    <h3><i class="fas fa-calendar-alt" style="color: var(--primary-red);"></i> Upcoming Blood Drives</h3>
+                </div>
+                <div class="card-body">
+                    {% if blood_drives %}
+                        {% for drive in blood_drives %}
+                        <div style="padding: 1rem; border-bottom: 1px solid var(--light-gray); {% if loop.last %}border-bottom: none;{% endif %}">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                <h4 style="font-size: 1rem; color: var(--dark-blue);">{{ drive.title }}</h4>
+                                <span class="badge badge-approved">{{ drive.date.strftime('%b %d') }}</span>
+                            </div>
+                            <p style="color: var(--medium-gray); font-size: 0.85rem; margin-bottom: 0.5rem;">
+                                <i class="fas fa-map-marker-alt"></i> {{ drive.location }}, {{ drive.city }}
+                            </p>
+                            <p style="color: var(--medium-gray); font-size: 0.8rem;">
+                                <i class="fas fa-clock"></i> {{ drive.start_time.strftime('%I:%M %p') }} - {{ drive.end_time.strftime('%I:%M %p') }}
+                            </p>
+                            <form method="POST" action="{{ url_for('schedule_donation') }}" style="margin-top: 0.75rem;">
+                                <input type="hidden" name="drive_id" value="{{ drive.id }}">
+                                <input type="hidden" name="scheduled_date" value="{{ drive.date }}">
+                                <button type="submit" class="btn btn-sm btn-primary" {% if not eligibility.eligible %}disabled style="opacity: 0.5;"{% endif %}>
+                                    <i class="fas fa-calendar-check"></i> Schedule
+                                </button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <h3>No Upcoming Drives</h3>
+                            <p>Check back later for new blood drives in your area.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Matching Requests -->
+            <div class="card animate-on-scroll">
+                <div class="card-header">
+                    <h3><i class="fas fa-bell" style="color: var(--primary-red);"></i> Matching Requests ({{ donor.blood_group }})</h3>
+                </div>
+                <div class="card-body">
+                    {% if matching_requests %}
+                        {% for req in matching_requests %}
+                        <div style="padding: 1rem; border-bottom: 1px solid var(--light-gray); {% if loop.last %}border-bottom: none;{% endif %}">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                <h4 style="font-size: 1rem; color: var(--dark-blue);">{{ req.hospital_name }}</h4>
+                                <span class="badge badge-{{ req.priority }}">{{ req.priority|upper }}</span>
+                            </div>
+                            <p style="color: var(--medium-gray); font-size: 0.85rem; margin-bottom: 0.25rem;">
+                                <i class="fas fa-tint"></i> {{ req.quantity }} units of {{ req.blood_group }} needed
+                            </p>
+                            <p style="color: var(--medium-gray); font-size: 0.8rem;">
+                                <i class="fas fa-user"></i> Patient: {{ req.patient_name or 'Anonymous' }}
+                            </p>
+                            <p style="color: var(--medium-gray); font-size: 0.8rem;">
+                                <i class="fas fa-file-medical"></i> {{ req.reason or 'No reason specified' }}
+                            </p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>No Matching Requests</h3>
+                            <p>There are currently no pending requests for your blood group.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-page {
+        min-height: calc(100vh - 70px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--dark-blue) 0%, var(--navy) 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-page::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -30%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(230,57,70,0.2) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .auth-page::after {
+        content: '';
+        position: absolute;
+        bottom: -40%;
+        left: -20%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .auth-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: 1000px;
+        width: 100%;
+        background: white;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        z-index: 2;
+    }
+
+    .auth-visual {
+        background: linear-gradient(135deg, var(--primary-red), var(--primary-red-dark));
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-visual::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: rotate 30s linear infinite;
+    }
+
+    .auth-visual-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .auth-visual i {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        animation: heartbeat 2s ease-in-out infinite;
+    }
+
+    .auth-visual h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .auth-visual p {
+        opacity: 0.9;
+        line-height: 1.7;
+    }
+
+    .auth-form-section {
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .auth-header {
+        margin-bottom: 2rem;
+    }
+
+    .auth-header h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.75rem;
+        color: var(--dark-blue);
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-header p {
+        color: var(--medium-gray);
+        font-size: 0.95rem;
+    }
+
+    .role-selector {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .role-option {
+        position: relative;
+    }
+
+    .role-option input {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .role-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border: 2px solid var(--light-gray);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: center;
+    }
+
+    .role-option label i {
+        font-size: 1.5rem;
+        color: var(--medium-gray);
+        transition: var(--transition);
+    }
+
+    .role-option label span {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-gray);
+    }
+
+    .role-option input:checked + label {
+        border-color: var(--primary-red);
+        background: rgba(230, 57, 70, 0.05);
+    }
+
+    .role-option input:checked + label i {
+        color: var(--primary-red);
+    }
+
+    .role-option input:checked + label span {
+        color: var(--primary-red);
+    }
+
+    .role-option label:hover {
+        border-color: var(--primary-red-light);
+    }
+
+    .auth-form .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .auth-form .form-control {
+        padding: 0.9rem 1rem;
+    }
+
+    .auth-form .btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--light-gray);
+    }
+
+    .auth-footer p {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+    }
+
+    .auth-footer a {
+        color: var(--primary-red);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auth-footer a:hover { text-decoration: underline; }
+
+    .demo-credentials {
+        background: linear-gradient(135deg, rgba(230,57,70,0.05), rgba(29,53,87,0.05));
+        border: 1px dashed var(--primary-red);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .demo-credentials h4 {
+        font-size: 0.85rem;
+        color: var(--primary-red);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .demo-credentials p {
+        font-size: 0.8rem;
+        color: var(--dark-gray);
+        margin: 0.25rem 0;
+    }
+
+    .demo-credentials code {
+        background: white;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        color: var(--primary-red);
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .auth-container { grid-template-columns: 1fr; }
+        .auth-visual { display: none; }
+        .auth-form-section { padding: 2rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container animate-fadeInUp">
+        <div class="auth-visual">
+            <div class="auth-visual-content">
+                <i class="fas fa-heart-pulse"></i>
+                <h2>Welcome Back</h2>
+                <p>Login to access your dashboard and continue saving lives through BloodBridge's cloud-powered platform.</p>
+            </div>
+        </div>
+        <div class="auth-form-section">
+            <div class="auth-header">
+                <h2>Login to BloodBridge</h2>
+                <p>Enter your credentials to access your account</p>
+            </div>
+
+            <form class="auth-form" method="POST" action="{{ url_for('login') }}">
+                <div class="role-selector">
+                    <div class="role-option">
+                        <input type="radio" name="role" id="role_donor" value="donor" checked>
+                        <label for="role_donor">
+                            <i class="fas fa-hand-holding-heart"></i>
+                            <span>Donor</span>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" name="role" id="role_admin" value="admin">
+                        <label for="role_admin">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Admin</span>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" name="role" id="role_hospital" value="hospital">
+                        <label for="role_hospital">
+                            <i class="fas fa-hospital"></i>
+                            <span>Hospital</span>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" name="role" id="role_bloodbank" value="bloodbank">
+                        <label for="role_bloodbank">
+                            <i class="fas fa-vial"></i>
+                            <span>Blood Bank</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="{{ url_for('register') }}">Register as Donor</a></p>
+            </div>
+
+            <div class="demo-credentials">
+                <h4><i class="fas fa-key"></i> Demo Admin Credentials</h4>
+                <p>Email: <code>admin@bloodbridge.com</code></p>
+                <p>Password: <code>admin123</code></p>
+                <p style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--medium-gray);">
+                    <i class="fas fa-info-circle"></i> Select "Admin" role to login
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

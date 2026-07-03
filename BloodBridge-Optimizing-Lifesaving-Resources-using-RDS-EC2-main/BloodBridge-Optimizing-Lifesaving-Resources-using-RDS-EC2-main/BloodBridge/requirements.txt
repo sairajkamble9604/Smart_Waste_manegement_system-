@@ -1,0 +1,15 @@
+# BloodBridge - Python Dependencies
+# AWS Cloud Healthcare Application
+# Flask + MySQL Stack
+
+Flask==2.3.3
+Flask-MySQLdb==1.0.1
+Werkzeug==2.3.7
+PyMySQL==1.1.0
+mysqlclient==2.2.0
+python-dotenv==1.0.0
+
+# For production AWS deployment:
+# gunicorn==21.2.0
+# boto3==1.28.0
+# awscli==1.29.0
